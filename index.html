@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="description" content="Predict the FIFA World Cup 2026 knockout stage and share your professional prediction card on Facebook.">
+  <title>World Cup 2026 · Knockout Predictor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #03060C;
+      font-family: 'Poppins', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      color: #FFFFFF;
+      line-height: 1.4;
+    }
+
+    /* Premium dark + gold theme */
+    :root {
+      --gold: #E6B422;
+      --gold-light: #F5C842;
+      --gold-dark: #C8971A;
+      --dark-card: rgba(10, 20, 30, 0.75);
+      --border-glow: rgba(230, 180, 34, 0.4);
+      --glass-bg: rgba(0, 0, 0, 0.65);
+    }
+
+    .app-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 1rem 1rem 2rem;
+    }
+
+    /* Header */
+    .hero {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #FFF5D0, var(--gold-light), #FFD966);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .hero .sub {
+      font-size: 0.9rem;
+      color: #9AB3C7;
+      border-top: 1px solid rgba(230,180,34,0.3);
+      display: inline-block;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+    .tournament-badge {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--gold-light);
+      background: rgba(0,0,0,0.4);
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 6px 18px;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Progress + user bar */
+    .prediction-status {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 48px;
+      padding: 6px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      gap: 15px;
+      border: 0.5px solid rgba(230,180,34,0.3);
+    }
+    .progress-stats {
+      display: flex;
+      gap: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 8px;
+      background: #1E2A36;
+      border-radius: 20px;
+      overflow: hidden;
+      max-width: 220px;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+      border-radius: 20px;
+    }
+    .user-area {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+    .user-area input {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      outline: none;
+      width: 150px;
+    }
+    .user-area input:focus {
+      border-color: var(--gold);
+    }
+    .btn-generate {
+      background: linear-gradient(95deg, var(--gold-dark), var(--gold-light));
+      border: none;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: bold;
+      color: #0A0F1A;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .btn-generate:hover {
+      transform: scale(0.98);
+      background: var(--gold-light);
+    }
+    /* Bracket container */
+    .bracket-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+    .bracket-round {
+      background: var(--glass-bg);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      min-width: 210px;
+      flex: 1;
+      border: 1px solid rgba(255,215,0,0.2);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+    }
+    .round-header {
+      padding: 0.9rem 0.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(230,180,34,0.3);
+      background: rgba(0,0,0,0.5);
+      border-radius: 20px 20px 0 0;
+    }
+    .round-name {
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #FFF, var(--gold-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .round-count {
+      font-size: 0.7rem;
+      color: #B9C8E3;
+      display: block;
+    }
+    .round-matches {
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .match-card {
+      background: rgba(15, 25, 35, 0.9);
+      border-radius: 16px;
+      border-left: 4px solid var(--gold);
+      transition: 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+    .match-card--locked {
+      border-left-color: #2c7a4d;
+      background: rgba(0,20,10,0.7);
+    }
+    .match-card--final {
+      border-left-width: 5px;
+      border-image: linear-gradient(45deg, var(--gold), #FFD966) 1;
+    }
+    .match-badge {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+      font-size: 9px;
+      background: #2c7a4d;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+    .match-badge--official {
+      background: #1F6E43;
+      color: #D4FFC9;
+    }
+    .match-teams {
+      padding: 10px 10px 8px;
+    }
+    .team-slot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px;
+      margin: 4px 0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.08s linear;
+      font-weight: 500;
+      background: rgba(255,255,255,0.02);
+    }
+    .team-slot--selectable:hover {
+      background: rgba(230,180,34,0.2);
+      transform: translateX(3px);
+    }
+    .team-slot--winner {
+      background: linear-gradient(90deg, rgba(230,180,34,0.25), rgba(230,180,34,0.05));
+      border-left: 3px solid var(--gold);
+    }
+    .team-slot--loser {
+      opacity: 0.5;
+    }
+    .team-slot--predicted:not(.team-slot--winner) {
+      background: rgba(30, 120, 255, 0.15);
+    }
+    .team-flag {
+      font-size: 1.3rem;
+      min-width: 32px;
+    }
+    .team-name {
+      flex: 1;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .team-check {
+      color: var(--gold);
+      font-weight: bold;
+      margin-left: 4px;
+    }
+    .match-vs {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #aaa;
+      margin: 2px 0;
+    }
+    .admin-trigger {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #555;
+      margin-top: 35px;
+      cursor: pointer;
+      user-select: none;
+    }
+    /* Admin panel styles (overlay) */
+    .admin-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      overflow-y: auto;
+      padding: 20px;
+      font-family: monospace, system-ui;
+    }
+    .admin-panel__header {
+      background: #1f2a36;
+      padding: 15px;
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-close-btn {
+      background: red;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+    .admin-matches {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .admin-match-row {
+      background: #111C26;
+      padding: 10px;
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-select {
+      background: #2d3b45;
+      color: white;
+      padding: 6px;
+      border-radius: 12px;
+      border: none;
+    }
+    .admin-btn {
+      background: var(--gold-dark);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .admin-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: gold;
+      padding: 10px 20px;
+      border-radius: 40px;
+      z-index: 2100;
+      font-weight: bold;
+    }
+    @media (max-width: 860px) {
+      .bracket-wrapper {
+        justify-content: flex-start;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+      }
+      .bracket-round {
+        min-width: 240px;
+        scroll-snap-align: start;
+      }
+      .user-area input {
+        width: 110px;
+      }
+    }
+    footer {
+      font-size: 0.7rem;
+      text-align: center;
+      margin-top: 2rem;
+      color: #6a7c8f;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="hero">
+    <h1>🏆 WORLD CUP 2026</h1>
+    <div class="sub">KNOCKOUT PREDICTOR</div>
+    <div class="tournament-badge">🇨🇦 Canada · 🇲🇽 Mexico · 🇺🇸 USA</div>
+  </div>
+
+  <div class="prediction-status">
+    <div class="progress-stats">
+      <span>📊 MY PROGRESS</span>
+      <span id="progress-percent">0%</span>
+      <span id="completed-matches">0/0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="user-area">
+      <input type="text" id="user-name" placeholder="YOUR NAME" value="FANATIC FAN">
+      <button id="generate-card-btn" class="btn-generate">✨ GENERATE CARD</button>
+    </div>
+  </div>
+
+  <div id="bracket-container"></div>
+  <div id="admin-trigger" class="admin-trigger">⚙️ FOOTBALL ADMIN</div>
+  <footer>⚡ Select winners → auto-advance | Official results lock matches | Share your ESPN-style card</footer>
+</div>
+
+<script>
+  // ---------- DATA EMBEDDED (tournament.json structure inside) ----------
+  const TOURNAMENT_DATA = {
+    "tournament": {
+      "name": "FIFA World Cup 2026",
+      "subtitle": "Knockout Stage",
+      "edition": "Canada · Mexico · USA"
+    },
+    "teams": [
+      { "id": "ARG", "name": "Argentina",   "flag": "🇦🇷", "group": "A" },
+      { "id": "FRA", "name": "France",      "flag": "🇫🇷", "group": "B" },
+      { "id": "BRA", "name": "Brazil",      "flag": "🇧🇷", "group": "C" },
+      { "id": "ENG", "name": "England",     "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "group": "D" },
+      { "id": "ESP", "name": "Spain",       "flag": "🇪🇸", "group": "E" },
+      { "id": "POR", "name": "Portugal",    "flag": "🇵🇹", "group": "F" },
+      { "id": "GER", "name": "Germany",     "flag": "🇩🇪", "group": "G" },
+      { "id": "NED", "name": "Netherlands", "flag": "🇳🇱", "group": "H" },
+      { "id": "URU", "name": "Uruguay",     "flag": "🇺🇾", "group": "A" },
+      { "id": "BEL", "name": "Belgium",     "flag": "🇧🇪", "group": "B" },
+      { "id": "COL", "name": "Colombia",    "flag": "🇨🇴", "group": "C" },
+      { "id": "USA", "name": "USA",         "flag": "🇺🇸", "group": "D" },
+      { "id": "MEX", "name": "Mexico",      "flag": "🇲🇽", "group": "E" },
+      { "id": "CRO", "name": "Croatia",     "flag": "🇭🇷", "group": "F" },
+      { "id": "SEN", "name": "Senegal",     "flag": "🇸🇳", "group": "G" },
+      { "id": "MOR", "name": "Morocco",     "flag": "🇲🇦", "group": "H" },
+      { "id": "JPN", "name": "Japan",       "flag": "🇯🇵", "group": "A" },
+      { "id": "DEN", "name": "Denmark",     "flag": "🇩🇰", "group": "B" },
+      { "id": "ECU", "name": "Ecuador",     "flag": "🇪🇨", "group": "C" },
+      { "id": "AUS", "name": "Australia",   "flag": "🇦🇺", "group": "D" },
+      { "id": "SUI", "name": "Switzerland", "flag": "🇨🇭", "group": "E" },
+      { "id": "POL", "name": "Poland",      "flag": "🇵🇱", "group": "F" },
+      { "id": "NGA", "name": "Nigeria",     "flag": "🇳🇬", "group": "G" },
+      { "id": "TUN", "name": "Tunisia",     "flag": "🇹🇳", "group": "H" },
+      { "id": "KOR", "name": "South Korea", "flag": "🇰🇷", "group": "A" },
+      { "id": "SRB", "name": "Serbia",      "flag": "🇷🇸", "group": "B" },
+      { "id": "CMR", "name": "Cameroon",    "flag": "🇨🇲", "group": "C" },
+      { "id": "CAN", "name": "Canada",      "flag": "🇨🇦", "group": "D" },
+      { "id": "ITA", "name": "Italy",       "flag": "🇮🇹", "group": "E" },
+      { "id": "IRN", "name": "Iran",        "flag": "🇮🇷", "group": "F" },
+      { "id": "GHA", "name": "Ghana",       "flag": "🇬🇭", "group": "G" },
+      { "id": "SAU", "name": "Saudi Arabia","flag": "🇸🇦", "group": "H" }
+    ],
+    "rounds": {
+      "r32": { "name": "Round of 32", "shortName": "R32", "matches": [
+        { "id": "R32_M1",  "team1Id": "ARG", "team2Id": "SAU", "winner": null, "status": "upcoming" },
+        { "id": "R32_M2",  "team1Id": "FRA", "team2Id": "AUS", "winner": null, "status": "upcoming" },
+        { "id": "R32_M3",  "team1Id": "BRA", "team2Id": "GHA", "winner": null, "status": "upcoming" },
+        { "id": "R32_M4",  "team1Id": "ENG", "team2Id": "IRN", "winner": null, "status": "upcoming" },
+        { "id": "R32_M5",  "team1Id": "ESP", "team2Id": "CMR", "winner": null, "status": "upcoming" },
+        { "id": "R32_M6",  "team1Id": "POR", "team2Id": "GHA", "winner": null, "status": "upcoming" },
+        { "id": "R32_M7",  "team1Id": "GER", "team2Id": "JPN", "winner": null, "status": "upcoming" },
+        { "id": "R32_M8",  "team1Id": "NED", "team2Id": "SEN", "winner": null, "status": "upcoming" },
+        { "id": "R32_M9",  "team1Id": "URU", "team2Id": "KOR", "winner": null, "status": "upcoming" },
+        { "id": "R32_M10", "team1Id": "BEL", "team2Id": "CAN", "winner": null, "status": "upcoming" },
+        { "id": "R32_M11", "team1Id": "COL", "team2Id": "TUN", "winner": null, "status": "upcoming" },
+        { "id": "R32_M12", "team1Id": "USA", "team2Id": "MEX", "winner": null, "status": "upcoming" },
+        { "id": "R32_M13", "team1Id": "MEX", "team2Id": "POL", "winner": null, "status": "upcoming" },
+        { "id": "R32_M14", "team1Id": "CRO", "team2Id": "DEN", "winner": null, "status": "upcoming" },
+        { "id": "R32_M15", "team1Id": "NGA", "team2Id": "ECU", "winner": null, "status": "upcoming" },
+        { "id": "R32_M16", "team1Id": "MOR", "team2Id": "SUI", "winner": null, "status": "upcoming" }
+      ] },
+      "r16": { "name": "Round of 16", "shortName": "R16", "matches": [
+        { "id": "R16_M1",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M1", "R32_M2"],  "winner": null, "status": "upcoming" },
+        { "id": "R16_M2",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M3", "R32_M4"],  "winner": null, "status": "upcoming" },
+        { "id": "R16_M3",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M5", "R32_M6"],  "winner": null, "status": "upcoming" },
+        { "id": "R16_M4",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M7", "R32_M8"],  "winner": null, "status": "upcoming" },
+        { "id": "R16_M5",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M9", "R32_M10"], "winner": null, "status": "upcoming" },
+        { "id": "R16_M6",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M11","R32_M12"], "winner": null, "status": "upcoming" },
+        { "id": "R16_M7",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M13","R32_M14"], "winner": null, "status": "upcoming" },
+        { "id": "R16_M8",  "team1Id": null, "team2Id": null, "sourceMatches": ["R32_M15","R32_M16"], "winner": null, "status": "upcoming" }
+      ] },
+      "qf": { "name": "Quarter Finals", "shortName": "QF", "matches": [
+        { "id": "QF_M1", "team1Id": null, "team2Id": null, "sourceMatches": ["R16_M1","R16_M2"], "winner": null, "status": "upcoming" },
+        { "id": "QF_M2", "team1Id": null, "team2Id": null, "sourceMatches": ["R16_M3","R16_M4"], "winner": null, "status": "upcoming" },
+        { "id": "QF_M3", "team1Id": null, "team2Id": null, "sourceMatches": ["R16_M5","R16_M6"], "winner": null, "status": "upcoming" },
+        { "id": "QF_M4", "team1Id": null, "team2Id": null, "sourceMatches": ["R16_M7","R16_M8"], "winner": null, "status": "upcoming" }
+      ] },
+      "sf": { "name": "Semi Finals", "shortName": "SF", "matches": [
+        { "id": "SF_M1", "team1Id": null, "team2Id": null, "sourceMatches": ["QF_M1","QF_M2"], "winner": null, "status": "upcoming" },
+        { "id": "SF_M2", "team1Id": null, "team2Id": null, "sourceMatches": ["QF_M3","QF_M4"], "winner": null, "status": "upcoming" }
+      ] },
+      "final": { "name": "The Final", "shortName": "FINAL", "matches": [
+        { "id": "FINAL", "team1Id": null, "team2Id": null, "sourceMatches": ["SF_M1","SF_M2"], "winner": null, "status": "upcoming" }
+      ] }
+    }
+  };
+
+  // ----- CORE ENGINE (Combines official + user predictions) -----
+  class TournamentEngine {
+    constructor(data) { this.data = data; this.userPredictions = {}; this.STORAGE_KEY = 'wc2026_pred'; this.loadPredictions(); }
+    loadPredictions() { try { const saved = localStorage.getItem(this.STORAGE_KEY); if(saved) this.userPredictions = JSON.parse(saved); } catch(e){} }
+    savePredictions() { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.userPredictions)); }
+    clearPredictions() { this.userPredictions = {}; localStorage.removeItem(this.STORAGE_KEY); }
+    getTeam(id) { return this.data.teams.find(t => t.id === id) || null; }
+    getMatchById(mid) { for(let r of Object.values(this.data.rounds)) { let m = r.matches.find(m => m.id === mid); if(m) return m; } return null; }
+    getEffectiveWinner(mid) { let m = this.getMatchById(mid); if(!m) return null; if(m.winner) return m.winner; return this.userPredictions[mid] || null; }
+    resolveMatchTeams(match) {
+      let t1 = match.team1Id, t2 = match.team2Id;
+      if(!t1 && match.sourceMatches) t1 = this.getEffectiveWinner(match.sourceMatches[0]);
+      if(!t2 && match.sourceMatches) t2 = this.getEffectiveWinner(match.sourceMatches[1]);
+      return { team1Id: t1, team2Id: t2 };
+    }
+    pickWinner(mid, tid) {
+      let match = this.getMatchById(mid);
+      if(!match || match.status === 'finished') return false;
+      let { team1Id, team2Id } = this.resolveMatchTeams(match);
+      if(tid !== team1Id && tid !== team2Id) return false;
+      this.userPredictions[mid] = tid;
+      this.savePredictions();
+      this.cascadeClear(mid);
+      return true;
+    }
+    cascadeClear(changedId) {
+      let changed = true;
+      while(changed) {
+        changed = false;
+        for(let r of Object.values(this.data.rounds)) {
+          for(let m of r.matches) {
+            if(m.sourceMatches && m.sourceMatches.includes(changedId)) {
+              let { team1Id, team2Id } = this.resolveMatchTeams(m);
+              let curr = this.userPredictions[m.id];
+              if(curr && curr !== team1Id && curr !== team2Id) {
+                delete this.userPredictions[m.id]; this.savePredictions(); this.cascadeClear(m.id); changed = true;
+              }
+            }
+          }
+        }
+      }
+    }
+    getChampion() { return this.getEffectiveWinner('FINAL'); }
+    buildBracketState() {
+      let state = {};
+      for(let [rk, round] of Object.entries(this.data.rounds)) {
+        state[rk] = { ...round, matches: round.matches.map(m => {
+          let { team1Id, team2Id } = this.resolveMatchTeams(m);
+          let officialWinner = m.winner, userPick = this.userPredictions[m.id];
+          let effectiveWinner = officialWinner || userPick || null;
+          let isLocked = m.status === 'finished';
+          let canPick = !isLocked && !!team1Id && !!team2Id;
+          return { ...m, team1Id, team2Id, team1: this.getTeam(team1Id), team2: this.getTeam(team2Id), effectiveWinner, officialWinner, userPick, isLocked, canPick };
+        }) };
+      }
+      return state;
+    }
+    getProgress() { let all = []; Object.values(this.data.rounds).forEach(r => all.push(...r.matches)); let done = all.filter(m => this.getEffectiveWinner(m.id)).length; return { total: all.length, done, pct: Math.round((done/all.length)*100) }; }
+  }
+
+  // ---- BRACKET RENDERER ----
+  class BracketRenderer {
+    constructor(engine, onUpdate) { this.engine = engine; this.onUpdate = onUpdate; this.container = document.getElementById('bracket-container'); }
+    render() {
+      let state = this.engine.buildBracketState();
+      this.container.innerHTML = '';
+      let wrapper = document.createElement('div'); wrapper.className = 'bracket-wrapper';
+      let order = ['r32','r16','qf','sf','final'];
+      for(let rk of order) { if(state[rk]) wrapper.appendChild(this.renderRound(state[rk], rk)); }
+      this.container.appendChild(wrapper);
+      if(this.onUpdate) this.onUpdate();
+    }
+    renderRound(round, rk) {
+      let col = document.createElement('div'); col.className = 'bracket-round';
+      col.innerHTML = `<div class="round-header"><div class="round-name">${round.name}</div><div class="round-count">${round.matches.length} matches</div></div>`;
+      let matchesDiv = document.createElement('div'); matchesDiv.className = 'round-matches';
+      round.matches.forEach(m => matchesDiv.appendChild(this.renderMatch(m, rk)));
+      col.appendChild(matchesDiv); return col;
+    }
+    renderMatch(match, rk) {
+      let card = document.createElement('div'); card.className = 'match-card';
+      if(match.isLocked) card.classList.add('match-card--locked');
+      if(rk === 'final') card.classList.add('match-card--final');
+      if(match.isLocked) card.innerHTML += `<div class="match-badge match-badge--official">✓ Official</div>`;
+      let teamsHtml = `<div class="match-teams">${this.teamSlot(match, 'team1')}<div class="match-vs">VS</div>${this.teamSlot(match, 'team2')}</div>`;
+      card.innerHTML += teamsHtml;
+      return card;
+    }
+    teamSlot(match, slot) {
+      let tid = match[slot+'Id'], team = match[slot];
+      let isWinner = match.effectiveWinner === tid;
+      let isUserPick = match.userPick === tid && !match.officialWinner;
+      let canPick = match.canPick && tid;
+      let classes = 'team-slot';
+      if(isWinner) classes += ' team-slot--winner';
+      if(isUserPick && !isWinner) classes += ' team-slot--predicted';
+      if(canPick) classes += ' team-slot--selectable';
+      let onclickAttr = canPick ? `onclick="window.app.bracketUI.handlePick('${match.id}', '${tid}')"` : '';
+      if(!team) return `<div class="${classes}"><span class="team-flag">⏳</span><span class="team-name">TBD</span></div>`;
+      return `<div ${onclickAttr} class="${classes}"><span class="team-flag">${team.flag}</span><span class="team-name">${team.name}</span>${isWinner ? '<span class="team-check">✓</span>' : ''}</div>`;
+    }
+    handlePick(mid, tid) { if(this.engine.pickWinner(mid, tid)) this.render(); }
+  }
+
+  // --- FULL IMAGE GENERATOR (1080x1350 premium) ---
+  class PredictionCardGenerator {
+    async generate(engine, userName) {
+      let canvas = document.createElement('canvas'); canvas.width = 1080; canvas.height = 1350; let ctx = canvas.getContext('2d');
+      let grad = ctx.createLinearGradient(0,0,0,canvas.height); grad.addColorStop(0,'#050A12'); grad.addColorStop(1,'#0A1628');
+      ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = 'rgba(230,180,34,0.05)'; for(let i=0;i<30;i++){ ctx.fillRect(i*60,0,2,canvas.height); ctx.fillRect(0,i*60,canvas.width,2); }
+      ctx.font = 'bold 70px "Arial Black"'; ctx.fillStyle = '#F5C842'; ctx.textAlign = 'center'; ctx.fillText('WORLD CUP',540,130);
+      ctx.font = 'bold 44px "Arial Black"'; ctx.fillStyle='#FFFFFF'; ctx.fillText('2026',540,200);
+      ctx.font = '14px monospace'; ctx.fillStyle='#F5C842'; ctx.fillText('KNOCKOUT PREDICTION',540,245);
+      ctx.font = 'bold 28px "Arial"'; ctx.fillStyle='#FFF'; ctx.fillText(userName.toUpperCase(),540,320);
+      let champId = engine.getChampion(); let champTeam = engine.getTeam(champId);
+      ctx.fillStyle = 'rgba(230,180,34,0.2)'; ctx.beginPath(); ctx.roundRect(200,370,680,150,20); ctx.fill();
+      ctx.font = 'bold 20px "Arial"'; ctx.fillStyle='#F5C842'; ctx.fillText('🏆 CHAMPION 🏆',540,420);
+      if(champTeam){ ctx.font = '70px serif'; ctx.fillText(champTeam.flag,540,480); ctx.font = 'bold 32px "Arial Black"'; ctx.fillStyle='#FFF'; ctx.fillText(champTeam.name,540,540); }
+      else { ctx.font = 'bold 28px Arial'; ctx.fillStyle='#aaa'; ctx.fillText('Complete bracket',540,490); }
+      // draw mini bracket
+      let state = engine.buildBracketState(); let roundKeys = ['r32','r16','qf','sf','final']; let startY = 620;
+      for(let idx=0; idx<roundKeys.length; idx++) {
+        let r = state[roundKeys[idx]]; let x = idx*210 + 60; let y = startY;
+        ctx.font = 'bold 11px monospace'; ctx.fillStyle='#F5C842'; ctx.fillText(r.shortName || r.name, x+75, y-5);
+        r.matches.forEach((m,i)=>{
+          let cardY = y + i*95; if(cardY+70 > canvas.height-80) return;
+          ctx.fillStyle = 'rgba(20,30,40,0.7)'; ctx.beginPath(); ctx.roundRect(x, cardY, 170, 70, 10); ctx.fill();
+          ctx.strokeStyle = '#F5C84266'; ctx.lineWidth=1; ctx.stroke();
+          let t1 = engine.getTeam(m.team1Id), t2 = engine.getTeam(m.team2Id);
+          let winner = engine.getEffectiveWinner(m.id);
+          ctx.font='14px serif'; if(t1){ ctx.fillStyle = winner===m.team1Id ? '#F5C842' : '#ddd'; ctx.fillText(t1.flag, x+8, cardY+28); ctx.font='bold 11px Arial'; ctx.fillText(t1.name.substring(0,12), x+40, cardY+28);}
+          if(t2){ ctx.fillStyle = winner===m.team2Id ? '#F5C842' : '#ddd'; ctx.font='14px serif'; ctx.fillText(t2.flag, x+8, cardY+56); ctx.font='bold 11px Arial'; ctx.fillText(t2.name.substring(0,12), x+40, cardY+56);}
+        });
+      }
+      ctx.font = '10px Arial'; ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.fillText('worldcup2026.predictions • share your bracket',540,1310);
+      return canvas;
+    }
+    download(canvas, name) { let link = document.createElement('a'); link.download = `WC2026_${name.replace(/\s/g,'_')}.png`; link.href = canvas.toDataURL(); link.click(); }
+  }
+
+  // ---- ADMIN PANEL (ctrl+shift+A) ----
+  class AdminPanel {
+    constructor(engine, renderer) { this.engine = engine; this.renderer = renderer; }
+    init() { document.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.shiftKey && e.key==='A') this.open(); }); document.getElementById('admin-trigger').addEventListener('click',()=>this.open()); }
+    open() { if(this.panel) return; this.render(); }
+    render() { let panel = document.createElement('div'); panel.className='admin-panel'; let rounds = this.engine.data.rounds; let rows='';
+      for(let rk of ['r32','r16','qf','sf','final']) { let round=rounds[rk]; if(!round) continue; rows+=`<div style="font-weight:bold;margin-top:10px;">${round.name}</div>`; round.matches.forEach(m=>{ let {team1Id,team2Id}=this.engine.resolveMatchTeams(m); let t1=this.engine.getTeam(team1Id), t2=this.engine.getTeam(team2Id); rows+=`<div class="admin-match-row"><span>${m.id}</span><span>${t1?t1.flag+t1.name:'TBD'} vs ${t2?t2.flag+t2.name:'TBD'}</span><select data-mid="${m.id}"><option value="">—</option>${t1?`<option value="${team1Id}" ${m.winner===team1Id?'selected':''}>${t1.name}</option>`:''}${t2?`<option value="${team2Id}" ${m.winner===team2Id?'selected':''}>${t2.name}</option>`:''}</select><select data-status="${m.id}"><option ${m.status==='upcoming'?'selected':''}>upcoming</option><option ${m.status==='finished'?'selected':''}>finished</option></select></div>`; })}
+      panel.innerHTML = `<div class="admin-panel__header"><strong>Admin - Official Results</strong><button class="admin-close-btn" id="closeAdmin">X</button></div><div class="admin-matches">${rows}</div><button id="applyAdminBtn" class="admin-btn">✅ Apply Results</button>`;
+      document.body.appendChild(panel); this.panel=panel;
+      document.getElementById('closeAdmin').onclick=()=>{ this.panel.remove(); this.panel=null; };
+      document.getElementById('applyAdminBtn').onclick=()=>{ for(let r of Object.values(rounds)) for(let m of r.matches){ let selWinner = document.querySelector(`[data-mid="${m.id}"]`); let selStatus = document.querySelector(`[data-status="${m.id}"]`); if(selWinner) m.winner = selWinner.value || null; if(selStatus) m.status = selStatus.value; } localStorage.setItem('wc2026_admin_override', JSON.stringify(rounds)); this.renderer.render(); this.panel.remove(); this.panel=null; alert('Applied!'); };
+    }
+  }
+
+  // ---- BOOTSTRAP ----
+  window.app = {};
+  (async function() {
+    const engine = new TournamentEngine(TOURNAMENT_DATA);
+    const bracketRenderer = new BracketRenderer(engine, () => { let p = engine.getProgress(); document.getElementById('progress-percent').innerText = p.pct+'%'; document.getElementById('completed-matches').innerText = `${p.done}/${p.total}`; document.getElementById('progress-fill').style.width = p.pct+'%'; });
+    bracketRenderer.render();
+    const cardGen = new PredictionCardGenerator();
+    const admin = new AdminPanel(engine, bracketRenderer);
+    admin.init();
+    document.getElementById('generate-card-btn').onclick = async () => {
+      let name = document.getElementById('user-name').value.trim(); if(!name) name = "FAN";
+      let canvas = await cardGen.generate(engine, name);
+      cardGen.download(canvas, name);
+    };
+    window.app.bracketUI = bracketRenderer;
+    window.app.engine = engine;
+  })();
+</script>
+</body>
+</html>
